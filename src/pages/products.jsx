@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Button from "../components/Elements/Button";
 import CardProduct from "../components/Fragments/CardProduct";
 import Counter from "../components/Fragments/Counter";
@@ -34,6 +34,22 @@ const email = localStorage.getItem("email");
 
 const Products = () => {
 	const [cart, setCart] = useState([]);
+	const [totalPrice, setTotalPrice] = useState(0);
+	useEffect(() => {
+		setCart(JSON.parse(localStorage.getItem("cart")) || []);
+	}, []);
+
+	useEffect(() => {
+		if (cart.length > 0) {
+			const sum = cart.reduce((acc, item) => {
+				const product = products.find((product) => product.id === item.id);
+				return acc + product.price * item.qty;
+			}, 0);
+
+			setTotalPrice(sum);
+			localStorage.setItem("cart", JSON.stringify(cart));
+		}
+	}, [cart]);
 
 	const handleAddtoCart = (id) => {
 		if (cart.find((item) => item.id === id)) {
@@ -114,13 +130,25 @@ const Products = () => {
 									</tr>
 								);
 							})}
+							<tr>
+								<td colSpan="3" className="font-bold">
+									Total
+								</td>
+								<td className="font-bold">
+									Rp{" "}
+									{totalPrice.toLocaleString("id-ID", {
+										styles: "currency",
+										currency: "IDR",
+									})}
+								</td>
+							</tr>
 						</tbody>
 					</table>
 				</div>
 			</div>
-			<div className="mt-5 mb-5 flex justify-center">
+			{/* <div className="mt-5 mb-5 flex justify-center">
 				<Counter/>
-			</div>
+			</div> */}
 		</>
 	);
 };
